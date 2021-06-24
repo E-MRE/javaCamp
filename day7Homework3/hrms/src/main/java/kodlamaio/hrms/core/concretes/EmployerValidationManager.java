@@ -1,34 +1,19 @@
 package kodlamaio.hrms.core.concretes;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.springframework.stereotype.Service;
 
 import kodlamaio.hrms.core.abstracts.EmployerValidationService;
 import kodlamaio.hrms.entities.concretes.Employer;
 
 @Service
-public class EmployerValidationManager implements EmployerValidationService {
+public class EmployerValidationManager extends UserValidationManager implements EmployerValidationService {
 
 	@Override
 	public boolean employerValid(Employer employer) {
-		boolean checkInfoFirst = employer.getCompanyName() != "" && employer.getEmail() != "" && employer.getPassword() != "" && employer.getPhone() != "" && employer.getWebsite() != "";
-		boolean checkInfoSecond = employer.getCompanyName() != null && employer.getEmail() != null && employer.getPassword() != null && employer.getPhone() != null && employer.getWebsite() != null;
+		boolean checkInfoFirst = employer.getCompanyName() != "" && employer.getPhone() != "" && employer.getWebsite() != "" && employer.getEmail() != "" && employer.getPassword() != "" && employer.getUserType().getUserType() != "";
+		boolean checkInfoSecond = employer.getCompanyName() != null && employer.getPhone() != null && employer.getWebsite() != null && employer.getEmail() != null && employer.getPassword() != null && employer.getUserType().getUserType() != null;
 		
 		return checkInfoFirst && checkInfoSecond;
-	}
-
-	@Override
-	public boolean checkEmailFormat(String email) {
-		String regex = "^[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,6}$";
-		Pattern pattern = Pattern.compile(regex, Pattern.CASE_INSENSITIVE);
-		Matcher matcher = pattern.matcher(email);
-		
-		if(!(matcher.find())) 
-			return false;
-		
-		return true;
 	}
 
 	@Override

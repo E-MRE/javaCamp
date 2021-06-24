@@ -6,7 +6,7 @@ import kodlamaio.hrms.core.utilities.results.DataResult;
 import kodlamaio.hrms.core.utilities.results.Result;
 import kodlamaio.hrms.entities.concretes.Employer;
 
-public interface EmployerService {
+public interface EmployerService extends UserService {
 	DataResult<List<Employer>> getAll();
 	Result add(Employer employer);
 }

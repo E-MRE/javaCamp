@@ -1,64 +1,57 @@
 package kodlamaio.hrms.business.concretes;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import kodlamaio.hrms.business.abstracts.UserService;
-import kodlamaio.hrms.core.abstracts.IdentityControlService;
-import kodlamaio.hrms.core.abstracts.UserValidationService;
 import kodlamaio.hrms.core.senders.VerificationCodeSender;
-import kodlamaio.hrms.core.utilities.results.DataResult;
 import kodlamaio.hrms.core.utilities.results.ErrorResult;
 import kodlamaio.hrms.core.utilities.results.Result;
-import kodlamaio.hrms.core.utilities.results.SuccessDataResult;
 import kodlamaio.hrms.core.utilities.results.SuccessResult;
 import kodlamaio.hrms.dataAccess.abstracts.UserDao;
-import kodlamaio.hrms.entities.concretes.User;
 
 @Service
 public class UserManager implements UserService {
 
 	private UserDao userDao;
-	private IdentityControlService mernisControl;
-	private UserValidationService validationService;
-	private VerificationCodeSender codeSender = new VerificationCodeSender();
+
+	private VerificationCodeSender sender;
 
 	@Autowired
-	public UserManager(UserDao userDao, IdentityControlService mernisControl, UserValidationService validationService) {
+	public UserManager(UserDao userDao) {
 		this.userDao = userDao;
-		this.mernisControl = mernisControl;
-		this.validationService = validationService;
+		sender = new VerificationCodeSender();
 	}
 
 	@Override
-	public DataResult<List<User>> getAll() {
-		return new SuccessDataResult<List<User>>(userDao.findAll(),"Kullanıcılar listelendi");
-	}
-
-	@Override
-	public Result add(User user) {
-		if(!validationService.userInfoValid(user)) {
-			return new ErrorResult("Eksik bilgi girildi");
+	public Result checkEmailVerified(String email) {
+		var user = userDao.getByEmail(email);
+		if(user == null) {
+			return new ErrorResult("Böyle bir kayıt yok");
 		}
-		else if(!validationService.emailFormatValid(user.getEmail())) {
-			return new ErrorResult("Hatalı e-posta girdiniz");
-		}
-		else if(!mernisControl.userValid(user)) {
-			return new ErrorResult("Kullanıcı T.C. numarası hatalı");
-		}
-		else if(userDao.findByEmail(user.getEmail()).size() != 0) {
-			return new ErrorResult("Bu e-posta ile kayıtlı bir kullanıcı mevcut");
-		}
-		else if(userDao.findByNationalIdentity(user.getNationalIdentity()).size() != 0) {
-			return new ErrorResult("Böyle bir kayıt zaten sistemde mevcut");
+		else if(!user.isVerified()) {
+			return new ErrorResult("E-posta onaylı değil");
 		}
 		else {
-			codeSender.sendVerificationCode(user.getEmail(), user.getUserId() + "HRMS");
-			userDao.save(user);
-			
-			return new SuccessResult("Kayıt başarılı! E-posta adresine gönderilen onay kodunu girdikten sonra sisteme giriş yapabilirsin");
+			return new SuccessResult("E-posta onaylı");
+		}
+	}
+
+	@Override
+	public Result sendVerificationCode(String email, String verificationCode) {
+		sender.sendVerificationCode(email, verificationCode);
+		return new SuccessResult("Doğrulama kodu gönderildi");
+	}
+
+	@Override
+	public Result checkEmailAlreadyExist(String email) {
+		var user = userDao.getByEmail(email);
+		
+		if(user != null) {
+			return new SuccessResult("Bu e-posta zaten kullanılıyor");
+		}
+		else {
+			return new ErrorResult("Bu e-posta kullanılabilir");
 		}
 	}
 	

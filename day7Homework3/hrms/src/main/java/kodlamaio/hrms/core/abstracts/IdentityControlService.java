@@ -1,7 +1,7 @@
 package kodlamaio.hrms.core.abstracts;
 
-import kodlamaio.hrms.entities.concretes.User;
+import kodlamaio.hrms.entities.concretes.JobSeeker;
 
 public interface IdentityControlService {
-	boolean userValid(User user);
+	boolean userValid(JobSeeker jobSeeker);
 }

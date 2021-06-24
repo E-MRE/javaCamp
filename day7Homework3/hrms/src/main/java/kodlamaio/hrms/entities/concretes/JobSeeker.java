@@ -12,22 +12,22 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Entity
-@Table(name="employers")
 @AllArgsConstructor
 @NoArgsConstructor
+@PrimaryKeyJoinColumn(name="user_id")
 @EqualsAndHashCode(callSuper = false)
-@PrimaryKeyJoinColumn(name ="user_id")
-public class Employer extends User {
-
-	@Column(name = "company_name")
-	private String companyName;
+@Table(name="job_seekers")
+public class JobSeeker extends User {
 	
-	@Column(name = "phone")
-	private String phone;
+	@Column(name="name")
+	private String name;
 	
-	@Column(name = "website")
-	private String website;
+	@Column(name="surname")
+	private String surname;
 	
-	@Column(name = "is_employer_verified")
-	private boolean isEmployerVerified;
+	@Column(name="national_identity")
+	private String nationalIdentity;
+	
+	@Column(name="birth_date")
+	private String birthDate;
 }
